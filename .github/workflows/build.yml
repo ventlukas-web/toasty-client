@@ -1,0 +1,29 @@
+name: Build Toasty Client
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.2.1
+      - name: Neueste Versionen fuer 1.21.11 holen
+        run: |
+          YARN=$(curl -s https://meta.fabricmc.net/v2/versions/yarn/1.21.11 | jq -r '.[0].version')
+          LOADER=$(curl -s https://meta.fabricmc.net/v2/versions/loader | jq -r '[.[]|select(.stable)][0].version')
+          FAPI=$(curl -s -G 'https://api.modrinth.com/v2/project/fabric-api/version' \
+            --data-urlencode 'game_versions=["1.21.11"]' --data-urlencode 'loaders=["fabric"]' | jq -r '.[0].version_number')
+          echo "yarn=$YARN loader=$LOADER fabric-api=$FAPI"
+          sed -i "s/^yarn_mappings=.*/yarn_mappings=$YARN/; s/^loader_version=.*/loader_version=$LOADER/; s/^fabric_version=.*/fabric_version=$FAPI/" gradle.properties
+      - run: gradle build --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: toasty-client-jar
+          path: build/libs/toasty-client-*[0-9].jar
