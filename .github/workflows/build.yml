@@ -7,6 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Projekt aus toasty-client.zip entpacken
+        run: |
+          test -f toasty-client.zip || { echo "toasty-client.zip fehlt im Repo"; exit 1; }
+          unzip -q -o toasty-client.zip -d _proj
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -15,6 +19,7 @@ jobs:
         with:
           gradle-version: 9.2.1
       - name: Neueste Versionen fuer 1.21.11 holen
+        working-directory: _proj/toasty-client
         run: |
           YARN=$(curl -s https://meta.fabricmc.net/v2/versions/yarn/1.21.11 | jq -r '.[0].version')
           LOADER=$(curl -s https://meta.fabricmc.net/v2/versions/loader | jq -r '[.[]|select(.stable)][0].version')
@@ -22,8 +27,10 @@ jobs:
             --data-urlencode 'game_versions=["1.21.11"]' --data-urlencode 'loaders=["fabric"]' | jq -r '.[0].version_number')
           echo "yarn=$YARN loader=$LOADER fabric-api=$FAPI"
           sed -i "s/^yarn_mappings=.*/yarn_mappings=$YARN/; s/^loader_version=.*/loader_version=$LOADER/; s/^fabric_version=.*/fabric_version=$FAPI/" gradle.properties
-      - run: gradle build --no-daemon
+      - name: Build
+        working-directory: _proj/toasty-client
+        run: gradle build --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: toasty-client-jar
-          path: build/libs/toasty-client-*[0-9].jar
+          path: _proj/toasty-client/build/libs/toasty-client-*[0-9].jar
