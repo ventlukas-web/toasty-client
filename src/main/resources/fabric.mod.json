@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "toastyclient",
+  "version": "1.3.0",
+  "name": "Toasty Client",
+  "description": "Toasty Client: Gamble-Helfer, HUD, Sell-Makro und mehr für WindSMP.",
+  "authors": [
+    "6po"
+  ],
+  "environment": "client",
+  "mixins": ["toastyclient.mixins.json"],
+  "entrypoints": {
+    "client": [
+      "dev.toasty.client.ToastyGamble"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17.0",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "icon": "assets/toastyclient/icon.png"
+}
