@@ -208,7 +208,9 @@ public final class ToastyEvents {
         r.add(new String[]{"Teilnehmer", String.valueOf(entrants.size()), "1"});
         r.add(new String[]{"Stichwort", ToastyConfig.get().giveawayKeyword, "3"});
         List<String> l = new ArrayList<>(entrants);
-        for (int i = Math.max(0, l.size() - 2); i < l.size(); i++) r.add(new String[]{"+ " + l.get(i), "", "3"});
+        int show = Math.min(6, l.size());
+        for (int i = 0; i < show; i++) r.add(new String[]{(i + 1) + ". " + l.get(i), "", "0"});
+        if (l.size() > show) r.add(new String[]{"+ " + (l.size() - show) + " weitere", "", "3"});
         return r;
     }
 
